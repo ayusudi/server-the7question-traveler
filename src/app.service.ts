@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { z } from 'zod';
 import { StructuredOutputParser } from '@langchain/core/output_parsers';
+import { InputBody } from './dto/input-body.dto';
 
 // Define Zod schema
 const zodOutput = StructuredOutputParser.fromZodSchema(
@@ -23,13 +24,10 @@ const zodOutput = StructuredOutputParser.fromZodSchema(
 
 @Injectable()
 export class AppService {
-  async generateTravelInfo(
-    country: string,
-    location: string,
-    totalDays: number,
-    month: string,
-    statusSouvenirs: boolean,
-  ): Promise<any> {
+  async generateTravelInfo(inputBody: InputBody): Promise<any> {
+    let { location, country, totalDays, month, statusSouvenirs } = {
+      ...inputBody,
+    };
     const prompt = `
       Gemini, you are working to give insights to a traveler to raise awareness about safety, enjoyment, and preparation for their trip.
       
