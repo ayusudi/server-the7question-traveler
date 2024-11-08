@@ -5,6 +5,11 @@ export class InputBody {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  city: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   country: string;
 
   @ApiProperty()

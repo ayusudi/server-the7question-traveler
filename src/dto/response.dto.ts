@@ -16,6 +16,11 @@ export class Response {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  city: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   country: string;
 
   @ApiProperty()
@@ -36,6 +41,11 @@ export class Response {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  detailOfTheCity: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   visaItinerary: string;
 
   @ApiProperty()
@@ -52,6 +62,13 @@ export class Response {
   @IsString()
   @IsNotEmpty()
   souvenirsOrFood: string;
+
+  @ApiPropertyOptional({
+    isArray: true,
+    type: String,
+  })
+  @IsArray()
+  publicNationalHoliday: string[];
 
   @ApiPropertyOptional({
     isArray: true,

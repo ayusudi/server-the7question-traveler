@@ -8,14 +8,19 @@ import { InputBody } from './dto/input-body.dto';
 const zodOutput = StructuredOutputParser.fromZodSchema(
   z.object({
     location: z.string(),
+    city: z.string(),
     country: z.string(),
     totalDays: z.number(),
     month: z.string(),
-    statusSouvenirs: z.boolean(),
-    visaItinerary: z.string(),
-    safetyRedDistrict: z.string(),
-    weatherClothing: z.string(),
-    souvenirsOrFood: z.string(),
+    statusSouvenirs: z.boolean().describe(''),
+    detailOfTheCity: z.string().describe('About the city'),
+    visaItinerary: z.string().describe('Visa information'),
+    safetyRedDistrict: z.string().describe('Safety & Red District information'),
+    weatherClothing: z.string().describe('Weather & Clothing information'),
+    souvenirsOrFood: z.string().describe('Souvenirs & Local Food information'),
+    publicNationalHoliday: z
+      .array(z.string())
+      .describe('A list of public or national holiday'),
     relatedLink: z
       .array(z.string())
       .describe('A list of related links as strings'),
@@ -25,7 +30,7 @@ const zodOutput = StructuredOutputParser.fromZodSchema(
 @Injectable()
 export class AppService {
   async generateTravelInfo(inputBody: InputBody): Promise<any> {
-    let { location, country, totalDays, month, statusSouvenirs } = {
+    let { location, city, country, totalDays, month, statusSouvenirs } = {
       ...inputBody,
     };
     const prompt = `
@@ -34,20 +39,24 @@ export class AppService {
       Provide detailed travel information in JSON format for the following schema:
       {
         "location": string,
+        "city": string,
         "country": string,
         "totalDays": number,
         "month": string,
         "statusSouvenirs": boolean,
+        "detailOfTheCity": string,
         "visaItinerary": string,
         "safetyRedDistrict": string,
         "weatherClothing": string,
         "souvenirsOrFood": string,
+        "publicNationalHoliday": array of strings (each representing a date and name of national/public holiday as string),
         "relatedLink": array of strings (each representing a URL)
       }
       
       Traveler's information:
-        - Location: ${location}
         - Country: ${country}
+        - City: ${city}
+        - Location: ${location ? location : city}
         - Total Days: ${totalDays}
         - Month: ${month}
         - Interested in Souvenirs: ${statusSouvenirs ? 'Yes' : 'No'}
@@ -58,8 +67,9 @@ export class AppService {
         - Describe expected weather and clothing recommendations for the month specified.
         - Suggest notable souvenirs or local foods the traveler should consider.
         - Include relevant related links in an array, each as a string URL.
+        - No need format of bold text and no list number or bullet point, just make it as narative text.
 
-      Please format the response according to the schema, with extra narrative text explain recommendation, month and the season of the country include safety and note on red district area.
+      Please format the response according to the schema, with extra narrative text explain recommendation, visa and does iternary is a must or not, month and the season of the country include safety and note on red district area.
     `;
 
     const model = new ChatGoogleGenerativeAI({
@@ -69,7 +79,6 @@ export class AppService {
     });
 
     const responseChunk = await model.invoke([['human', prompt]], {});
-
     try {
       const parsedData = await zodOutput.parse(responseChunk.text);
       return parsedData;
